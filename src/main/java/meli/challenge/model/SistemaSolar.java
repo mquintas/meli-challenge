@@ -1,8 +1,10 @@
 package meli.challenge.model;
 
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import com.google.common.base.Joiner;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SistemaSolar {
 
@@ -15,41 +17,107 @@ public class SistemaSolar {
     private double diasDesdeInicio = 0;
     private double diezAnios = 10*365; //cuando dice 10 años se presupone años terrestres de 365 dias sin bisiesto
 
-    private int periodosOptimos = 0;
+    private int planetasAlineados = 0;
+    private int planetasAlineadosConElSol = 0;
+    private List<Integer> diasSequia = new ArrayList<>();
+    private List<Integer> diasOptimos = new ArrayList<>();
 
-    public int calcular() {
+    public int pronosticar() {
 
         initPlanetas();
-
-
-        for (int dia =0 ; dia < diezAnios; dia++){
-
+        for (int dia = 0 ; dia < diezAnios; dia++){
             posicionarPlanetas(dia);
-            print(dia);
-            estanAlineados();
+//            print(dia);
+//            estanAlineados(dia);
+            calcularAlineaciones(dia);
+            calcularTriangulaciones(dia);
+
         }
-        System.out.println("Periodos De Sequia: "+ periodosOptimos);
-        return periodosOptimos;
+        System.out.println("Periodos de Sequia: "+ planetasAlineadosConElSol);
+        System.out.println("Dias De Sequia: "+ Joiner.on(",").join(diasSequia));
+        System.out.println("Periodos optimos: "+ planetasAlineados);
+        System.out.println("Dias De optimos: "+ Joiner.on(",").join(diasOptimos));
+        return planetasAlineados;
 
     }
 
-    private void estanAlineados() {
+    private void calcularTriangulaciones(int dia) {
 
+    }
+
+
+    /**
+     * metodo de la linea Y = m X + b
+     * @param dia
+     */
+    private void calcularAlineaciones(int dia) {
+        double m = 0;
+        if ( (vulcano.x() - betasoide.x()) != 0) {
+            m = (vulcano.y() - betasoide.y()) / (vulcano.x() - betasoide.x());
+            //double b = ( (betasoide.y()*vulcano.x()) - (vulcano.y()-betasoide.x())) / (vulcano.x() - betasoide.x());
+        }
+        if (m == 0)
+            System.out.println("");
+        double b = vulcano.y() - (m * vulcano.x());
+
+        //System.out.println(dia + ": " + m + " | " + b);
+
+        System.out.println("Y = " + m + " X + " + b);
+        //contiene a ferengi?
+        double y = ( m*ferengi.x() )+ b;
+
+
+        if (m == 0 && b == 0 && ferengi.y() == 0 ) {
+            //es una recta horizontal y los 3 planetas pasan por ahi
+            planetasAlineadosConElSol++;
+            diasSequia.add(dia);
+            System.out.println("alineados con el sol en la recta horizonatal!");
+        } else if (m == 0 && ferengi.x() == 0) {
+            //es una recta vertical y los 3 planetas pasan por ahi
+            planetasAlineadosConElSol++;
+            diasSequia.add(dia);
+            System.out.println("alineados con el sol en la recta vertical!");
+        } else if (Math.abs(y - ferengi.y()) < 0.001) { // comparo < 0.001 por si tengo algun error de redondeo aunque el resultado no cambio.
+//        System.out.println(Math.abs(y - ferengi.y()));
+            //los 3 planetas estan alineados. verifico el sol. si m=0 la recta pasa por (0,0)
+            planetasAlineados++;
+            diasOptimos.add(dia);
+            System.out.println("alineados!");
+        }
+
+    }
+
+
+    /**
+     * Metodo de vectores.... no funciono.
+     * @deprecated no me daban los numeros.
+     */
+    private void estanAlineados(int dia) {
         //Ferengi (F), Betasoide (B) y Vulcano (V) estan alineados si
-        // Vx-Fx / Bx-Fx = Vy-Fy / By-Fy
-
+        //--- Vx-Fx / Bx-Fx = Vy-Fy / By-Fy
+        /**
+         *   By-Fy   Vy-By
+         *   ----- = -----
+         *   Bx-Fx   Vx-Bx
+         */
         if (vulcano.x() == ferengi.x() && ferengi.x() == betasoide.x()) {
-            periodosOptimos++;
+//            planetasAlineados++;
             return;
         }
         if (vulcano.y() == ferengi.y() && ferengi.y() == betasoide.y()) {
-            periodosOptimos++;
+//            planetasAlineados++;
             return;
         }
-        double x = (new BigDecimal( (vulcano.x() - ferengi.x()) / (betasoide.x() - ferengi.x()) )).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-        double y = (new BigDecimal( (vulcano.y() - ferengi.y()) / (betasoide.y() - ferengi.y()) )).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+//        double a = (new BigDecimal( (betasoide.y() - ferengi.y()) / (betasoide.x() - ferengi.x()) )).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+//        double b = (new BigDecimal( (vulcano.y() - betasoide.y()) / (vulcano.x() - betasoide.x()) )).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+        double a = ( (betasoide.y() - ferengi.y()) / (betasoide.x() - ferengi.x()) );
+        double b = ( (vulcano.y() - betasoide.y()) / (vulcano.x() - betasoide.x()) );
 
-        periodosOptimos = periodosOptimos + ( (x == y) ? 1 : 0 );
+        System.out.println( Math.abs(a - b));
+        if ( Math.abs(a - b)  < 0.0001 ) {
+            planetasAlineados = planetasAlineados + 1;
+            diasOptimos.add(dia);
+        }
     }
 
     private void posicionarPlanetas(int dia) {
