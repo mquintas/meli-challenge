@@ -1,15 +1,15 @@
 package meli.challenge.model;
 
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class SistemaSolar {
-
 
     private Planeta sol = new Planeta("SOL",0, 0, 0);
     private Planeta ferengi;
@@ -32,16 +32,18 @@ public class SistemaSolar {
 
     Multimap<Double, Integer> distribucionDeLluvias = ArrayListMultimap.create();
 
-    public int pronosticar() {
+    List<Pronostico> pronosticoList = new ArrayList<>();
+
+    public void pronosticar() {
 
         initPlanetas();
         for (int dia = 0 ; dia < diezAnios; dia++){
-            posicionarPlanetas(dia);
-//            print(dia);
-//            estanAlineados(dia);
-            calcularAlineaciones(dia);
-            calcularTriangulaciones(dia);
-
+            Pronostico pronostico = new Pronostico(dia);
+            //print(dia);
+            posicionarPlanetas(pronostico);
+            calcularAlineaciones(pronostico);
+            calcularTriangulaciones(pronostico);
+            pronosticoList.add(pronostico);
         }
         System.out.println("Periodos de Sequia: "+ planetasAlineadosConElSol);
         System.out.println("Dias De Sequia: "+ Joiner.on(",").join(diasSequia));
@@ -52,14 +54,12 @@ public class SistemaSolar {
         System.out.println("Dias De lluvia: "+ Joiner.on(",").join(diasLluvia));
         System.out.println("Dias con Pico De lluvia: "+ Joiner.on(",").join(distribucionDeLluvias.get(perimetroMaximo)));
 
-        return planetasAlineados;
-
     }
 
-    private void calcularTriangulaciones(int dia) {
+    private void calcularTriangulaciones(Pronostico pronostico) {
         //http://www.dma.fi.upm.es/personal/mabellanas/tfcs/kirkpatrick/Aplicacion/algoritmos.htm
         //calculo la orientacion del triangulo entre los 3 planetas y luego entre 3 planetas y el sol
-        //FVB
+        //FVB - ferengi, vulcano, betasoide
         double fvb = (ferengi.x()-betasoide.x())*(vulcano.y()-betasoide.y()) - (ferengi.y()-betasoide.y()) * (vulcano.x()-betasoide.x());
         //las coordenadas del sol siempre van a ser 0 pero las dejo para ejemplificar la cuenta.
         //fvs
@@ -75,7 +75,8 @@ public class SistemaSolar {
                 && Math.signum(vbs) == Math.signum(bfs)) {
             //los sentidos de los 4 triangulos son el mismo, por lo tanto contiene al Sol.
             planetasTrianguladosConElSol++;
-            diasLluvia.add(dia);
+            diasLluvia.add(pronostico.getDia());
+            pronostico.setClima(Clima.LLUVIA);
 
             //calculo perimetro con los 3 vectores que forman el triangulo
             double fv = Math.sqrt(Math.pow((vulcano.x() - ferengi.x()), 2) + Math.pow((vulcano.y() - ferengi.y()), 2));
@@ -83,11 +84,11 @@ public class SistemaSolar {
             double bf = Math.sqrt(Math.pow((ferengi.x() - betasoide.x()), 2) + Math.pow((ferengi.y() - betasoide.y()), 2));
 
             double perimetro = fv + vb + bf;
-            distribucionDeLluvias.put(perimetro, dia);
+            distribucionDeLluvias.put(perimetro, pronostico.getDia());
 
             if (perimetro >= perimetroMaximo) {
                 perimetroMaximo = perimetro;
-                diasPicoDeLluvia.add(dia);
+                diasPicoDeLluvia.add(pronostico.getDia());
             }
         }
     }
@@ -95,9 +96,8 @@ public class SistemaSolar {
 
     /**
      * metodo de la linea Y = m X + b
-     * @param dia
      */
-    private void calcularAlineaciones(int dia) {
+    private void calcularAlineaciones(Pronostico pronostico) {
         double m = 0;
         if ( (vulcano.x() - betasoide.x()) != 0) {
             m = (vulcano.y() - betasoide.y()) / (vulcano.x() - betasoide.x());
@@ -105,69 +105,65 @@ public class SistemaSolar {
         }
         double b = vulcano.y() - (m * vulcano.x());
 
-        //System.out.println(dia + ": " + m + " | " + b);
-//        System.out.println("Y = " + m + " X + " + b);
-
         //contiene a ferengi?
         double y = ( m*ferengi.x() )+ b;
 
         if (m == 0 && b == 0 && ferengi.y() == 0 ) {
             //es una recta horizontal y los 3 planetas pasan por ahi
             planetasAlineadosConElSol++;
-            diasSequia.add(dia);
-//            System.out.println("alineados con el sol en la recta horizonatal!");
+            diasSequia.add(pronostico.getDia());
+            pronostico.setClima(Clima.SEQUIA);
         } else if (m == 0 && ferengi.x() == 0) {
             //es una recta vertical y los 3 planetas pasan por ahi
             planetasAlineadosConElSol++;
-            diasSequia.add(dia);
-//            System.out.println("alineados con el sol en la recta vertical!");
+            diasSequia.add(pronostico.getDia());
+            pronostico.setClima(Clima.SEQUIA);
         } else if (Math.abs(y - ferengi.y()) < 0.001) { // comparo < 0.001 por si tengo algun error de redondeo aunque el resultado no cambio.
-//        System.out.println(Math.abs(y - ferengi.y()));
             //los 3 planetas estan alineados. verifico el sol. si m=0 la recta pasa por (0,0)
             planetasAlineados++;
-            diasOptimos.add(dia);
-//            System.out.println("alineados!");
+            diasOptimos.add(pronostico.getDia());
+            pronostico.setClima(Clima.OPTIMO);
         }
 
     }
 
 
-    /**
-     * Metodo de vectores.... no funciono.
-     * @deprecated no me daban los numeros.
-     */
-    private void estanAlineados(int dia) {
-        //Ferengi (F), Betasoide (B) y Vulcano (V) estan alineados si
-        //--- Vx-Fx / Bx-Fx = Vy-Fy / By-Fy
-        /**
-         *   By-Fy   Vy-By
-         *   ----- = -----
-         *   Bx-Fx   Vx-Bx
-         */
-        if (vulcano.x() == ferengi.x() && ferengi.x() == betasoide.x()) {
-//            planetasAlineados++;
-            return;
-        }
-        if (vulcano.y() == ferengi.y() && ferengi.y() == betasoide.y()) {
-//            planetasAlineados++;
-            return;
-        }
-//        double a = (new BigDecimal( (betasoide.y() - ferengi.y()) / (betasoide.x() - ferengi.x()) )).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-//        double b = (new BigDecimal( (vulcano.y() - betasoide.y()) / (vulcano.x() - betasoide.x()) )).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-        double a = ( (betasoide.y() - ferengi.y()) / (betasoide.x() - ferengi.x()) );
-        double b = ( (vulcano.y() - betasoide.y()) / (vulcano.x() - betasoide.x()) );
+//    /**
+//     * Metodo de vectores.... no funciono.
+//     * @deprecated no me daban los numeros.
+//     */
+//    private void estanAlineados(int dia) {
+//        //Ferengi (F), Betasoide (B) y Vulcano (V) estan alineados si
+//        //--- Vx-Fx / Bx-Fx = Vy-Fy / By-Fy
+//        /**
+//         *   By-Fy   Vy-By
+//         *   ----- = -----
+//         *   Bx-Fx   Vx-Bx
+//         */
+//        if (vulcano.x() == ferengi.x() && ferengi.x() == betasoide.x()) {
+////            planetasAlineados++;
+//            return;
+//        }
+//        if (vulcano.y() == ferengi.y() && ferengi.y() == betasoide.y()) {
+////            planetasAlineados++;
+//            return;
+//        }
+////        double a = (new BigDecimal( (betasoide.y() - ferengi.y()) / (betasoide.x() - ferengi.x()) )).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+////        double b = (new BigDecimal( (vulcano.y() - betasoide.y()) / (vulcano.x() - betasoide.x()) )).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
+//        double a = ( (betasoide.y() - ferengi.y()) / (betasoide.x() - ferengi.x()) );
+//        double b = ( (vulcano.y() - betasoide.y()) / (vulcano.x() - betasoide.x()) );
+//
+//        System.out.println( Math.abs(a - b));
+//        if ( Math.abs(a - b)  < 0.0001 ) {
+//            planetasAlineados = planetasAlineados + 1;
+//            diasOptimos.add(dia);
+//        }
+//    }
 
-        System.out.println( Math.abs(a - b));
-        if ( Math.abs(a - b)  < 0.0001 ) {
-            planetasAlineados = planetasAlineados + 1;
-            diasOptimos.add(dia);
-        }
-    }
-
-    private void posicionarPlanetas(int dia) {
-        ferengi.posicionar(dia);
-        betasoide.posicionar(dia);
-        vulcano.posicionar(dia);
+    private void posicionarPlanetas(Pronostico pronostico) {
+        ferengi.posicionar(pronostico.getDia());
+        betasoide.posicionar(pronostico.getDia());
+        vulcano.posicionar(pronostico.getDia());
     }
 
     private void initPlanetas() {
