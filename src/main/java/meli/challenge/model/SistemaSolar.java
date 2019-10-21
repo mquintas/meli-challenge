@@ -4,7 +4,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import lombok.extern.log4j.Log4j2;
-import meli.challenge.data.Storage;
 import meli.challenge.service.PronosticoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

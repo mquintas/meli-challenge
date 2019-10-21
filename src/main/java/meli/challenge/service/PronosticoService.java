@@ -1,6 +1,6 @@
 package meli.challenge.service;
 
-import meli.challenge.data.Storage;
+import meli.challenge.data.PronosticoRepository;
 import meli.challenge.model.Pronostico;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,18 +8,22 @@ import org.springframework.stereotype.Service;
 @Service
 public class PronosticoService {
 
+    private PronosticoRepository pronosticoRepository;
+
     @Autowired
-    private Storage storage;
+    public PronosticoService(PronosticoRepository pronosticoRepository) {
+        this.pronosticoRepository = pronosticoRepository;
+    }
 
     public Pronostico obtenerPronostico(Integer dia) {
 
-        return storage.leer(dia);
+        return pronosticoRepository.leer(dia);
 
     }
 
     public void agregarPronostico(Pronostico pronostico) {
 
-        storage.guardar(pronostico);
+        pronosticoRepository.guardar(pronostico);
 
     }
 }

@@ -28,12 +28,12 @@ dependencies {
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
 	compileOnly 'org.projectlombok:lombok'
+	implementation 'com.google.guava:guava:28.1-jre'
 	annotationProcessor 'org.projectlombok:lombok'
 
 //	classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.1.6.RELEASE'
 //	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	implementation 'com.google.guava:guava:28.1-jre'
 
 }
