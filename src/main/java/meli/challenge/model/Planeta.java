@@ -1,6 +1,5 @@
 package meli.challenge.model;
 
-
 import lombok.Data;
 
 @Data

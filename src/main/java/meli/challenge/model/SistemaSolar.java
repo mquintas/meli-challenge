@@ -3,21 +3,28 @@ package meli.challenge.model;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import lombok.extern.log4j.Log4j2;
+import meli.challenge.data.Storage;
+import meli.challenge.service.PronosticoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Log4j2
 @Component
 public class SistemaSolar {
+
+    @Autowired
+    private PronosticoService service;
 
     private Planeta sol = new Planeta("SOL",0, 0, 0);
     private Planeta ferengi;
     private Planeta betasoide;
     private Planeta vulcano;
 
-    private double diasDesdeInicio = 0;
-    private double diezAnios = 10*365; //cuando dice 10 años se presupone años terrestres de 365 dias sin bisiesto
+    private double diasDePronostico = 10*365; //cuando dice 10 aÃ±os se presupone aÃ±os terrestres de 365 dias sin bisiesto
 
     private int planetasAlineados = 0;
     private int planetasAlineadosConElSol = 0;
@@ -37,22 +44,30 @@ public class SistemaSolar {
     public void pronosticar() {
 
         initPlanetas();
-        for (int dia = 0 ; dia < diezAnios; dia++){
+        for (int dia = 0 ; dia < diasDePronostico; dia++){
             Pronostico pronostico = new Pronostico(dia);
             //print(dia);
             posicionarPlanetas(pronostico);
             calcularAlineaciones(pronostico);
             calcularTriangulaciones(pronostico);
             pronosticoList.add(pronostico);
+            service.agregarPronostico(pronostico);
         }
-        System.out.println("Periodos de Sequia: "+ planetasAlineadosConElSol);
-        System.out.println("Dias De Sequia: "+ Joiner.on(",").join(diasSequia));
-        System.out.println("Periodos optimos: "+ planetasAlineados);
-        System.out.println("Dias De optimos: "+ Joiner.on(",").join(diasOptimos));
 
-        System.out.println("Periodos de Lluvia: "+ planetasTrianguladosConElSol);
-        System.out.println("Dias De lluvia: "+ Joiner.on(",").join(diasLluvia));
-        System.out.println("Dias con Pico De lluvia: "+ Joiner.on(",").join(distribucionDeLluvias.get(perimetroMaximo)));
+        //seteo en cada pronostico si es pico de lluvia dependiendo el maximo perimetro calculado.
+        distribucionDeLluvias.get(perimetroMaximo).forEach( (dia) -> {
+            service.obtenerPronostico(dia).setPicoDeLluvia("SI");
+        });
+
+        log.info(" ========== Resumen del Pronostico ========== ");
+        log.info("Periodos de Sequia: "+ planetasAlineadosConElSol);
+        log.info("Dias De Sequia: "+ Joiner.on(",").join(diasSequia));
+        log.info("Periodos de clima Optimo: "+ planetasAlineados);
+        log.info("Dias De optimos: "+ Joiner.on(",").join(diasOptimos));
+        log.info("Periodos de Lluvia: "+ planetasTrianguladosConElSol);
+        log.info("Dias De lluvia: "+ Joiner.on(",").join(diasLluvia));
+        log.info("Dias con Pico De lluvia: "+ Joiner.on(",").join(distribucionDeLluvias.get(perimetroMaximo)));
+        log.info(" =========================================== ");
 
     }
 
@@ -64,15 +79,13 @@ public class SistemaSolar {
         //las coordenadas del sol siempre van a ser 0 pero las dejo para ejemplificar la cuenta.
         //fvs
         double fbs = (ferengi.x()-sol.x())*(vulcano.y()-sol.y()) - (ferengi.y()-sol.y()) * (vulcano.x()-sol.x());
-
         //vbs
         double vbs= (vulcano.x()-sol.x())*(betasoide.y()-sol.y()) - (vulcano.y()-sol.y()) * (betasoide.x()-sol.x());
         //bfs
         double bfs= (betasoide.x()-sol.x())*(ferengi.y()-sol.y()) - (betasoide.y()-sol.y()) * (ferengi.x()-sol.x());
 
-        if ( Math.signum(fvb) == Math.signum(fbs)
-                && Math.signum(fbs) == Math.signum(vbs)
-                && Math.signum(vbs) == Math.signum(bfs)) {
+        if ( !(fvb == 0 && fbs == 0 && fbs == 0 && vbs == 0 ) &&
+              ( Math.signum(fvb) == Math.signum(fbs) && Math.signum(fbs) == Math.signum(vbs) && Math.signum(vbs) == Math.signum(bfs)) ) {
             //los sentidos de los 4 triangulos son el mismo, por lo tanto contiene al Sol.
             planetasTrianguladosConElSol++;
             diasLluvia.add(pronostico.getDia());
@@ -92,7 +105,6 @@ public class SistemaSolar {
             }
         }
     }
-
 
     /**
      * metodo de la linea Y = m X + b
@@ -153,7 +165,7 @@ public class SistemaSolar {
 //        double a = ( (betasoide.y() - ferengi.y()) / (betasoide.x() - ferengi.x()) );
 //        double b = ( (vulcano.y() - betasoide.y()) / (vulcano.x() - betasoide.x()) );
 //
-//        System.out.println( Math.abs(a - b));
+//        log.info( Math.abs(a - b));
 //        if ( Math.abs(a - b)  < 0.0001 ) {
 //            planetasAlineados = planetasAlineados + 1;
 //            diasOptimos.add(dia);
@@ -173,11 +185,11 @@ public class SistemaSolar {
     }
 
     private void print(int dia) {
-        System.out.println("DIA: " + dia);
-        System.out.println(ferengi);
-        System.out.println(betasoide);
-        System.out.println(vulcano);
-        System.out.println("----");
+        log.info("DIA: " + dia);
+        log.info(ferengi);
+        log.info(betasoide);
+        log.info(vulcano);
+        log.info("----");
 
     }
 
