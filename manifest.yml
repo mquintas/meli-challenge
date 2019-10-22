@@ -1,0 +1,9 @@
+---
+applications:
+  - name: meli-challenge
+    memory: 768M
+    buildpacks:
+      - java_buildpack
+    path: build\libs\challenge-0.0.1.jar
+    env:
+      _JAVA_OPTIONS: -Dlogging.level.org.springframework.*=DEBUG -Dlogging.level.meli.challenge.*=DEBUG

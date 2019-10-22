@@ -10,10 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Log4j2
 @RestController
 @Validated
-public class Controller implements ClimaApi {
+public class PronosticoController implements ClimaApi {
+
+    private PronosticoService service;
 
     @Autowired
-    PronosticoService service;
+    public PronosticoController(PronosticoService service) {
+        this.service = service;
+    }
 
     public Pronostico obtenerClima(Integer dia) {
 

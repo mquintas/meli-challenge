@@ -4,12 +4,12 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import meli.challenge.model.Pronostico;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 
-@Component
-public class Storage {
+@Repository
+public class InMemoryPronosticoRepository implements PronosticoRepository {
 
     private Cache<Integer, Pronostico> pronosticoCache;
 

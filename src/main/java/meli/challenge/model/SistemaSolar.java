@@ -4,7 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import lombok.extern.log4j.Log4j2;
-import meli.challenge.data.Storage;
+import meli.challenge.Constantes;
 import meli.challenge.service.PronosticoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -56,7 +56,7 @@ public class SistemaSolar {
 
         //seteo en cada pronostico si es pico de lluvia dependiendo el maximo perimetro calculado.
         distribucionDeLluvias.get(perimetroMaximo).forEach( (dia) -> {
-            service.obtenerPronostico(dia).setPicoDeLluvia("SI");
+            service.obtenerPronostico(dia).setPicoDeLluvia(Constantes.PICO_DE_LLUVIA);
         });
 
         log.info(" ========== Resumen del Pronostico ========== ");
@@ -138,6 +138,7 @@ public class SistemaSolar {
         }
 
     }
+
 
 
 //    /**
