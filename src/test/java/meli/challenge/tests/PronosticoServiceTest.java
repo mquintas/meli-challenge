@@ -2,9 +2,9 @@ package meli.challenge.tests;
 
 import meli.challenge.Constantes;
 import meli.challenge.data.InMemoryPronosticoRepository;
+import meli.challenge.data.PronosticoRepository;
 import meli.challenge.model.Clima;
 import meli.challenge.service.PronosticoService;
-import meli.challenge.tests.MockUtil;
 import static org.junit.Assert.*;
 
 import org.junit.Assert;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 public class PronosticoServiceTest {
 
     @Mock
-    private InMemoryPronosticoRepository pronosticoRepository;
+    private PronosticoRepository pronosticoRepository;
 
     @InjectMocks
     private PronosticoService pronosticoService;

@@ -1,6 +1,5 @@
 package meli.challenge.service;
 
-import meli.challenge.data.InMemoryPronosticoRepository;
 import meli.challenge.data.PronosticoRepository;
 import meli.challenge.model.Pronostico;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,7 @@ public class PronosticoService {
     private PronosticoRepository repository;
 
     @Autowired
-    public PronosticoService(InMemoryPronosticoRepository pronosticoRepository) {
+    public PronosticoService(PronosticoRepository pronosticoRepository) {
         this.repository = pronosticoRepository;
     }
 

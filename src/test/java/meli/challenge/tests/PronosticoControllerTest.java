@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,13 +28,13 @@ public class PronosticoControllerTest {
     private Random random;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         controller = new PronosticoController(service);
         random = new Random();
     }
 
     @Test
-    public void test() {
+    public void testRandomRequest() {
 
         Integer dia = random.nextInt(3650);
 
