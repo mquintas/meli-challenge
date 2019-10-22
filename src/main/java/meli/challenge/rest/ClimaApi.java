@@ -26,7 +26,7 @@ public interface ClimaApi {
     @RequestMapping(value = "/clima", produces = {"application/json"}, method = RequestMethod.GET)
     Pronostico obtenerClima(@RequestParam(value="dia")
                             @Min(value= 0, message = "Solo se pronostica hacia el futuro. Ingrese un dia mayor a Cero.")
-                            @Max(value= 3650, message = "Solo se pronostica 10 años (3650) dias. Ingrese un dia menor.")
+                            @Max(value= 3650, message = "Solo se pronostica 10 aÃ±os (3650) dias. Ingrese un dia menor.")
                             Integer dia);
 
 }

@@ -1,5 +1,6 @@
 package meli.challenge.tests;
 
+import meli.challenge.Constantes;
 import meli.challenge.model.Clima;
 import meli.challenge.model.Pronostico;
 
@@ -26,7 +27,7 @@ public class MockUtil {
     public static Pronostico createMockPronosticoPicoDeLluvia(Integer dia){
         Pronostico mock = new Pronostico(200);
         mock.setClima(Clima.LLUVIA);
-        mock.setPicoDeLluvia("SI");
+        mock.setPicoDeLluvia(Constantes.PICO_DE_LLUVIA);
         return mock;
     }
 
