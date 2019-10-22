@@ -139,40 +139,6 @@ public class SistemaSolar {
 
     }
 
-
-
-//    /**
-//     * Metodo de vectores.... no funciono.
-//     * @deprecated no me daban los numeros.
-//     */
-//    private void estanAlineados(int dia) {
-//        //Ferengi (F), Betasoide (B) y Vulcano (V) estan alineados si
-//        //--- Vx-Fx / Bx-Fx = Vy-Fy / By-Fy
-//        /**
-//         *   By-Fy   Vy-By
-//         *   ----- = -----
-//         *   Bx-Fx   Vx-Bx
-//         */
-//        if (vulcano.x() == ferengi.x() && ferengi.x() == betasoide.x()) {
-////            planetasAlineados++;
-//            return;
-//        }
-//        if (vulcano.y() == ferengi.y() && ferengi.y() == betasoide.y()) {
-////            planetasAlineados++;
-//            return;
-//        }
-////        double a = (new BigDecimal( (betasoide.y() - ferengi.y()) / (betasoide.x() - ferengi.x()) )).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-////        double b = (new BigDecimal( (vulcano.y() - betasoide.y()) / (vulcano.x() - betasoide.x()) )).setScale(2, RoundingMode.HALF_EVEN).doubleValue();
-//        double a = ( (betasoide.y() - ferengi.y()) / (betasoide.x() - ferengi.x()) );
-//        double b = ( (vulcano.y() - betasoide.y()) / (vulcano.x() - betasoide.x()) );
-//
-//        log.info( Math.abs(a - b));
-//        if ( Math.abs(a - b)  < 0.0001 ) {
-//            planetasAlineados = planetasAlineados + 1;
-//            diasOptimos.add(dia);
-//        }
-//    }
-
     private void posicionarPlanetas(Pronostico pronostico) {
         ferengi.posicionar(pronostico.getDia());
         betasoide.posicionar(pronostico.getDia());
@@ -183,15 +149,6 @@ public class SistemaSolar {
         ferengi = new Planeta("FERENGI",1, -1, 500);
         betasoide = new Planeta("BETASOIDE",3, -1, 2000);
         vulcano = new Planeta("VULCANO",5, +1, 1000);
-    }
-
-    private void print(int dia) {
-        log.info("DIA: " + dia);
-        log.info(ferengi);
-        log.info(betasoide);
-        log.info(vulcano);
-        log.info("----");
-
     }
 
 }
